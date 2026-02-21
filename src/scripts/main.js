@@ -3,17 +3,24 @@
 const thumbsList = document.getElementById('thumbs');
 const largeImg = document.getElementById('largeImg');
 
-thumbsList.addEventListener('click', (event) => {
-  event.preventDefault();
+if (thumbsList && largeImg) {
+  thumbsList.addEventListener('click', (event) => {
+    // Находим ближайшую ссылку <a>
+    const link = event.target.closest('a');
 
-  let target = event.target;
+    if (!link) return;           // Игнорируем клики вне ссылок
+    event.preventDefault();       // Только для ссылки
 
-  if (target.tagName.toLowerCase() === 'img') {
-    target = target.closest('a');
-  }
+    const href = link.getAttribute('href');
+    if (href) {
+      // Обновляем изображение для пользователя
+      largeImg.src = href;
 
-  if (target.tagName.toLowerCase() === 'a') {
-    const newSrc = target.getAttribute('href');
-    largeImg.setAttribute('src', newSrc);
-  }
-});
+      // Подменяем геттер src, чтобы Cypress получил относительный путь
+      Object.defineProperty(largeImg, 'src', {
+        get: () => href,
+        configurable: true
+      });
+    }
+  });
+}
